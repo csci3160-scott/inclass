@@ -1,0 +1,3 @@
+[submodule "src/inclass"]
+	url = scottcd:scottcd/csci-3160-inclass.git
+	path = src/inclass
