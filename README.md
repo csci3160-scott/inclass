@@ -87,7 +87,8 @@ commit in the parent course repository. It updates the automation branch
 `csci-3160/csci-3160:main`. The parent repository still controls when the
 submodule update is merged.
 
-Repository administrators must add an Actions secret named
-`PARENT_REPO_TOKEN`. The token needs permission to clone, push a branch, and
-create pull requests in `csci-3160/csci-3160`. The token is used only by the
-workflow and is never stored in the repository.
+Repository administrators must add an organization Actions secret named
+`COURSE_AUTOMATION_TOKEN` in the producer's Gitea organization. The token needs
+permission to clone, push a branch, and create pull requests in the consumer
+course repositories. The token is used only by the workflow and is never
+stored in the repository.
