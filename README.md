@@ -30,3 +30,51 @@ emulation is available; the course CI runner validates the x86-64 build.
 
 See [WALKTHROUGHS.md](WALKTHROUGHS.md) for the short classroom sequences and
 the examples that are intentionally excluded from automated smoke tests.
+
+## Student workflow
+
+The normal workflow is deliberately small. Build all of the examples once:
+
+```bash
+make build
+```
+
+Then choose an example and a tool. The tool commands use the existing build;
+they do not rebuild all examples each time:
+
+```bash
+make run PROGRAM=show-bytes
+make inspect PROGRAM=branch
+make gdb PROGRAM=badcnt ARGS=100000
+make valgrind PROGRAM=interpose-linktime
+```
+
+Use `make source FILE=examples/data/show-bytes.c` to open source code in the
+configured pager. `FILE` can be any source file in the repository. Use
+`PAGER=cat` when a non-interactive display is more convenient.
+
+These commands run on the host by default. For a consistent environment with
+the compiler, debugger, and analysis tools already installed, enter the
+container first:
+
+```bash
+make shell
+```
+
+The repository is mounted at `/workspace/inclass`; run the same `make`
+commands inside the shell. Exit the container with `exit`. `make image` only
+builds the image, while `make shell` starts an interactive environment and
+`make container-smoke` runs the automated checks in that environment.
+
+### Using tmux
+
+tmux is optional, but useful for comparing source, execution, and analysis:
+
+```bash
+tmux new -s csci3160
+make shell
+```
+
+Inside the container, split panes with `Ctrl-b %` or `Ctrl-b "`, then use one
+pane for `make source`, one for `make run`, and one for `make gdb` or
+`make valgrind`. Detach with `Ctrl-b d` and return with `tmux attach -t csci3160`.
