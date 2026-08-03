@@ -19,6 +19,14 @@ The imported source retains its original copyright notices. See `NOTICE` for
 the repository-level attribution and source mapping. Generated binaries,
 object files, and manuscript-build artifacts do not belong in this repository.
 
-The Docker-based build and classroom commands will be added in the next
-change. Until then, the source tree is intentionally just the reviewed
-CS:APP inventory and its upstream support code.
+The Docker-based build and classroom commands use the compatibility build
+settings documented by the repository Makefile. The copied CS:APP support
+library renames its helper `gai_error` to `csapp_gai_error` because modern
+glibc declares a different function with that name.
+
+The image builds for the host architecture by default. Set
+`DOCKER_PLATFORM=linux/amd64` when an x86-64 Docker builder or registered
+emulation is available; the course CI runner validates the x86-64 build.
+
+See [WALKTHROUGHS.md](WALKTHROUGHS.md) for the short classroom sequences and
+the examples that are intentionally excluded from automated smoke tests.
