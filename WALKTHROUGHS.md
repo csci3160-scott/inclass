@@ -33,12 +33,19 @@ implementation.
 ```bash
 build/bin/addvec
 (cd build/bin && ./dll)
-LD_PRELOAD="$PWD/build/bin/mymalloc.so" build/bin/interpose
+build/bin/interpose-linktime
+build/bin/interpose-compiletime
 ```
 
 Use `addvec` for ordinary object-file linking, `dll` for `dlopen`/`dlsym`, and
-the interposition pair for load-time replacement. The shared library must be
-run from `build/bin` because the textbook example uses `./libvector.so`.
+the two interposition binaries for link-time and compile-time replacement.
+The shared library must be run from `build/bin` because the textbook example
+uses `./libvector.so`.
+
+The upstream runtime `LD_PRELOAD` variant is retained as source reference but
+is not built: printing with `printf` from inside a `malloc` wrapper recurses
+on modern glibc. The link-time and compile-time variants demonstrate the same
+interposition concept without that runtime-specific failure.
 
 ## Exceptional control flow
 

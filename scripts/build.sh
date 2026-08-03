@@ -42,7 +42,14 @@ compile "$CC" $CFLAGS examples/link/dll.c -ldl $LDFLAGS -o "$bin/dll"
 compile "$CC" $CFLAGS examples/link/m.c examples/link/swap.c $LDFLAGS -o "$bin/swap"
 compile "$CC" $CFLAGS examples/link/main.c examples/link/sum.c $LDFLAGS -o "$bin/sum"
 compile "$CC" $CFLAGS examples/link/interpose/int.c $LDFLAGS -o "$bin/interpose"
-compile "$CC" $CFLAGS -DRUNTIME -fPIC -shared examples/link/interpose/mymalloc.c -ldl $LDFLAGS -o "$bin/mymalloc.so"
+compile "$CC" $CFLAGS -DLINKTIME examples/link/interpose/int.c examples/link/interpose/mymalloc.c \
+	-Wl,--wrap,malloc -Wl,--wrap,free $LDFLAGS -o "$bin/interpose-linktime"
+compile "$CC" $CFLAGS -DCOMPILETIME -Iexamples/link/interpose \
+	-c examples/link/interpose/int.c -o "$obj/interpose-compiletime-main.o"
+compile "$CC" $CFLAGS -DCOMPILETIME -c examples/link/interpose/mymalloc.c \
+	-o "$obj/interpose-compiletime-mymalloc.o"
+compile "$CC" $CFLAGS "$obj/interpose-compiletime-main.o" \
+	"$obj/interpose-compiletime-mymalloc.o" $LDFLAGS -o "$bin/interpose-compiletime"
 
 for name in fork waitpid1 sigsuspend sigintsafe shellex; do
 	compile "$CC" $CFLAGS $support_flags "examples/ecf/$name.c" "$support_lib" $LDFLAGS -pthread -o "$bin/$name"

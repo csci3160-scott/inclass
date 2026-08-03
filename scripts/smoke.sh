@@ -16,6 +16,8 @@ line two"
 "$bin/branch" >/dev/null || true
 "$bin/addvec" >/dev/null
 (cd "$bin" && ./dll >/dev/null)
+"$bin/interpose-linktime" >/dev/null
+"$bin/interpose-compiletime" >/dev/null
 "$bin/swap" || true
 "$bin/sum" || true
 "$bin/fork" >/dev/null
