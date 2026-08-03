@@ -1,5 +1,21 @@
 # Classroom Walkthroughs
 
+The examples use one consistent interface:
+
+```bash
+make build
+make run PROGRAM=show-bytes
+make inspect PROGRAM=branch
+make gdb PROGRAM=badcnt ARGS=100000
+make valgrind PROGRAM=interpose-linktime
+```
+
+Run `make shell` first when you want the Docker-provided compiler and tools.
+The source remains in `examples/`; read it with your editor or with, for
+example, `make source FILE=examples/data/show-bytes.c`. The walkthroughs
+below show the underlying commands when a lecture benefits from naming the
+specific artifact being inspected.
+
 Build the selected examples with `make build` or use `make container-smoke`
 for the reproducible environment. The commands below assume the repository
 root is the working directory and that the image has already been built.
