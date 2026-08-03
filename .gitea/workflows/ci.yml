@@ -33,7 +33,7 @@ jobs:
     runs-on: course-python-3.10
     timeout-minutes: 10
     env:
-      PARENT_REPO_TOKEN: ${{ secrets.PARENT_REPO_TOKEN }}
+      COURSE_AUTOMATION_TOKEN: ${{ secrets.COURSE_AUTOMATION_TOKEN }}
       PARENT_REPO: csci-3160/csci-3160
       UPDATE_BRANCH: automation/update-inclass
     steps:
@@ -47,14 +47,14 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [[ -z "${PARENT_REPO_TOKEN:-}" ]]; then
-            echo 'The PARENT_REPO_TOKEN Actions secret is required to update the parent repository.' >&2
+          if [[ -z "${COURSE_AUTOMATION_TOKEN:-}" ]]; then
+            echo 'The COURSE_AUTOMATION_TOKEN Actions secret is required to update the parent repository.' >&2
             exit 2
           fi
 
           parent_dir="${RUNNER_TEMP}/csci-3160-parent"
           parent_url="http://hestia.olympus:3000/${PARENT_REPO}.git"
-          git -c "http.extraheader=Authorization: token ${PARENT_REPO_TOKEN}" \
+          git -c "http.extraheader=Authorization: token ${COURSE_AUTOMATION_TOKEN}" \
             clone --branch main --single-branch "${parent_url}" "${parent_dir}"
 
           current_commit="$(git -C "${parent_dir}" ls-tree main inclass | awk '{print $3}')"
@@ -71,11 +71,11 @@ jobs:
           git -C "${parent_dir}" commit \
             -m "Update inclass submodule to ${GITHUB_SHA:0:12}"
           git -C "${parent_dir}" \
-            -c "http.extraheader=Authorization: token ${PARENT_REPO_TOKEN}" \
+            -c "http.extraheader=Authorization: token ${COURSE_AUTOMATION_TOKEN}" \
             push --force origin "HEAD:${UPDATE_BRANCH}"
 
           open_prs="$(curl --fail --silent --show-error \
-            --header "Authorization: token ${PARENT_REPO_TOKEN}" \
+            --header "Authorization: token ${COURSE_AUTOMATION_TOKEN}" \
             --get "http://hestia.olympus:3000/api/v1/repos/${PARENT_REPO}/pulls" \
             --data-urlencode 'state=open' \
             --data-urlencode 'base=main')"
@@ -104,7 +104,7 @@ jobs:
           }))
           PY
           curl --fail --silent --show-error --request POST \
-            --header "Authorization: token ${PARENT_REPO_TOKEN}" \
+            --header "Authorization: token ${COURSE_AUTOMATION_TOKEN}" \
             --header 'Content-Type: application/json' \
             --data-binary "@${RUNNER_TEMP}/parent-pr.json" \
             "http://hestia.olympus:3000/api/v1/repos/${PARENT_REPO}/pulls"
