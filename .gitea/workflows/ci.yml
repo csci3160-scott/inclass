@@ -25,3 +25,86 @@ jobs:
           persist-credentials: false
       - name: Build and smoke-test in the supported container
         run: make container-smoke
+
+  update-parent:
+    name: Propose parent submodule update
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.build.result == 'success'
+    needs: build
+    runs-on: course-python-3.10
+    timeout-minutes: 10
+    env:
+      PARENT_REPO_TOKEN: ${{ secrets.PARENT_REPO_TOKEN }}
+      PARENT_REPO: csci-3160/csci-3160
+      UPDATE_BRANCH: automation/update-inclass
+    steps:
+      - name: Check out the source commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Update the parent submodule pointer
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${PARENT_REPO_TOKEN:-}" ]]; then
+            echo 'The PARENT_REPO_TOKEN Actions secret is required to update the parent repository.' >&2
+            exit 2
+          fi
+
+          parent_dir="${RUNNER_TEMP}/csci-3160-parent"
+          parent_url="http://hestia.olympus:3000/${PARENT_REPO}.git"
+          git -c "http.extraheader=Authorization: token ${PARENT_REPO_TOKEN}" \
+            clone --branch main --single-branch "${parent_url}" "${parent_dir}"
+
+          current_commit="$(git -C "${parent_dir}" ls-tree main inclass | awk '{print $3}')"
+          if [[ "${current_commit}" == "${GITHUB_SHA}" ]]; then
+            echo "Parent already points to ${GITHUB_SHA}."
+            exit 0
+          fi
+
+          git -C "${parent_dir}" switch -C "${UPDATE_BRANCH}" origin/main
+          git -C "${parent_dir}" update-index --add \
+            --cacheinfo "160000,${GITHUB_SHA},inclass"
+          git -C "${parent_dir}" config user.name 'csci-3160 automation'
+          git -C "${parent_dir}" config user.email 'csci-3160-automation@localhost'
+          git -C "${parent_dir}" commit \
+            -m "Update inclass submodule to ${GITHUB_SHA:0:12}"
+          git -C "${parent_dir}" \
+            -c "http.extraheader=Authorization: token ${PARENT_REPO_TOKEN}" \
+            push --force origin "HEAD:${UPDATE_BRANCH}"
+
+          open_prs="$(curl --fail --silent --show-error \
+            --header "Authorization: token ${PARENT_REPO_TOKEN}" \
+            --get "http://hestia.olympus:3000/api/v1/repos/${PARENT_REPO}/pulls" \
+            --data-urlencode 'state=open' \
+            --data-urlencode 'base=main')"
+          pr_number="$(printf '%s' "${open_prs}" | python3 -c \
+            'import json, sys; data=json.load(sys.stdin); matches=[p for p in data if p.get("head", {}).get("ref") == "automation/update-inclass"]; print(matches[0]["number"] if matches else "")')"
+
+          if [[ -n "${pr_number}" ]]; then
+            echo "Updated existing parent PR #${pr_number}."
+            exit 0
+          fi
+
+          python3 - <<'PY' > "${RUNNER_TEMP}/parent-pr.json"
+          import json
+          import os
+
+          sha = os.environ["GITHUB_SHA"]
+          print(json.dumps({
+              "base": "main",
+              "head": "automation/update-inclass",
+              "title": f"Update inclass submodule to {sha[:12]}",
+              "body": (
+                  "This PR updates the `inclass` submodule to the latest "
+                  f"successful `inclass/main` commit `{sha}`.\n\n"
+                  "Created automatically after the inclass CI workflow passed."
+              ),
+          }))
+          PY
+          curl --fail --silent --show-error --request POST \
+            --header "Authorization: token ${PARENT_REPO_TOKEN}" \
+            --header 'Content-Type: application/json' \
+            --data-binary "@${RUNNER_TEMP}/parent-pr.json" \
+            "http://hestia.olympus:3000/api/v1/repos/${PARENT_REPO}/pulls"

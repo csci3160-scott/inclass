@@ -78,3 +78,16 @@ make shell
 Inside the container, split panes with `Ctrl-b %` or `Ctrl-b "`, then use one
 pane for `make source`, one for `make run`, and one for `make gdb` or
 `make valgrind`. Detach with `Ctrl-b d` and return with `tmux attach -t csci3160`.
+
+## Parent repository updates
+
+After a successful CI run on `inclass/main`, the workflow proposes the new
+commit in the parent course repository. It updates the automation branch
+`automation/update-inclass` and creates or refreshes one pull request against
+`csci-3160/csci-3160:main`. The parent repository still controls when the
+submodule update is merged.
+
+Repository administrators must add an Actions secret named
+`PARENT_REPO_TOKEN`. The token needs permission to clone, push a branch, and
+create pull requests in `csci-3160/csci-3160`. The token is used only by the
+workflow and is never stored in the repository.
