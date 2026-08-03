@@ -27,3 +27,6 @@ glibc declares a different function with that name.
 The image builds for the host architecture by default. Set
 `DOCKER_PLATFORM=linux/amd64` when an x86-64 Docker builder or registered
 emulation is available; the course CI runner validates the x86-64 build.
+
+See [WALKTHROUGHS.md](WALKTHROUGHS.md) for the short classroom sequences and
+the examples that are intentionally excluded from automated smoke tests.
