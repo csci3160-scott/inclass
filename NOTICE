@@ -1,0 +1,20 @@
+CSCI 3160 In-Class Code
+=======================
+
+This repository includes source examples from:
+
+  Computer Systems: A Programmer's Perspective, 3/E
+  Randal E. Bryant and David R. O'Hallaron
+  Carnegie Mellon University
+
+Official source inventory:
+  https://csapp.cs.cmu.edu/3e/code.html
+
+The imported source files retain their original copyright notices and are
+provided here for the CSCI 3160 course environment. README files, build
+scripts, Docker configuration, and other course tooling are maintained by the
+CSCI 3160 course repository.
+
+This notice is attribution, not a relicensing statement for the upstream
+source. Consult the upstream distribution terms before redistributing these
+files outside the course repository.
