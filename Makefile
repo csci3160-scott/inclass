@@ -68,6 +68,5 @@ valgrind: check-program check-tool
 
 container-smoke: image
 	docker run --rm $(if $(DOCKER_PLATFORM),--platform $(DOCKER_PLATFORM),) \
-		--volume "$(CURDIR):/workspace/inclass" \
 		--workdir /workspace/inclass \
 		csci-3160-inclass:local make smoke

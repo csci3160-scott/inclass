@@ -22,4 +22,5 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /workspace/inclass
+COPY . /workspace/inclass
 CMD ["make", "smoke"]
