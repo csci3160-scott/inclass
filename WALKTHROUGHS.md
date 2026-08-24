@@ -27,6 +27,19 @@ build/bin/intro-hello
 build/bin/show-bytes
 ```
 
+For the first CS:APP demo, use the complete source-to-runtime sequence:
+
+```bash
+make demo-intro
+```
+
+The script prints `examples/intro/hello.c`, runs the program, uses `objdump`
+to show the machine code for `main`, then loads the same binary in GDB. The
+GDB command file (`scripts/intro-gdb.gdb`) stops at `main`, prints the
+source/assembly mapping and register state, steps three instructions with
+`nexti`, and continues to exit. Open the command file during class so every
+automated command remains visible.
+
 Use `show-bytes.c` to connect integer, floating-point, pointer, and string
 representations to the bytes printed by the program. The program's verbose
 output is intentional for live discussion.
@@ -124,3 +137,37 @@ build/bin/psum-mutex 2 8
 `badcnt` is intentionally racy; its result and even whether the race is
 visible can vary by run. Compare it with the mutex and local-accumulation
 versions rather than treating one output as a test oracle.
+
+## Hand-held instructor pacing
+
+Run the commands one at a time, ask for a prediction, and pause to connect
+the observation to the lecture. The `make demo-*` targets are repeatability
+helpers, not the primary teaching interface.
+
+For the first CS:APP demo, the manual sequence is:
+
+```bash
+sed -n '1,80p' examples/intro/hello.c
+make build
+./build/bin/intro-hello
+objdump -d -M intel build/bin/intro-hello | sed -n '/<main>:/,/^$/p'
+gdb build/bin/intro-hello
+```
+
+In GDB, run `break main`, `run`, `disassemble /m main`, `info registers rip
+rbp rsp`, and then `nexti` three times. Ask which instructions prepare the
+argument, perform the call, and return the status. The main point is that
+source, executable bytes, and runtime machine state are three views of one
+program.
+
+For the concurrency lecture, use this slower comparison:
+
+```bash
+sed -n '1,180p' examples/conc/badcnt.c
+./build/bin/badcnt 100000
+./build/bin/psum-local 2 8
+./build/bin/psum-mutex 2 8
+```
+
+Pause before each run and ask which shared state is protected, then compare
+the race, local-accumulation, and mutex designs.

@@ -1,6 +1,6 @@
 SHELL := /bin/sh
 
-.PHONY: all help build smoke clean image shell source check-program check-tool run inspect gdb valgrind container-smoke
+.PHONY: all help build smoke clean image shell source check-program check-tool run inspect gdb demo-intro valgrind container-smoke
 
 PROGRAM ?=
 ARGS ?=
@@ -16,6 +16,7 @@ help:
 	@echo '  make run PROGRAM=name [ARGS="..."]      Run an example'
 	@echo '  make inspect PROGRAM=name               Show source and disassembly'
 	@echo '  make gdb PROGRAM=name [ARGS="..."]      Debug an example'
+	@echo '  make demo-intro                         Run the first CS:APP source-to-machine-code demo'
 	@echo '  make valgrind PROGRAM=name [ARGS="..."] Profile an example'
 	@echo '  make source FILE=examples/path/file.c   Read source in a pager'
 	@echo '  make smoke                              Run automated smoke tests'
@@ -61,6 +62,9 @@ inspect: check-program check-tool
 gdb: TOOL=gdb
 gdb: check-program check-tool
 	gdb --args build/bin/$(PROGRAM) $(ARGS)
+
+demo-intro:
+	./scripts/intro-demo.sh
 
 valgrind: TOOL=valgrind
 valgrind: check-program check-tool
