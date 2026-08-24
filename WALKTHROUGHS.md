@@ -144,6 +144,15 @@ Run the commands one at a time, ask for a prediction, and pause to connect
 the observation to the lecture. The `make demo-*` targets are repeatability
 helpers, not the primary teaching interface.
 
+For each existing topic, use the same teaching rhythm: open the named source,
+ask for a prediction, run exactly one command, inspect the resulting artifact,
+and ask students to explain the observation using the lecture's mechanism.
+For data, compare a predicted byte pattern with `show-bytes`; for assembly,
+compare compiler output with `objdump`; for linking, compare symbols and load
+locations; for ECF, compare parent/child state; for VM, compare object symbols;
+for I/O and networking, trace descriptor ownership; and for concurrency,
+compare the race against local accumulation and mutex protection.
+
 For the first CS:APP demo, the manual sequence is:
 
 ```bash
