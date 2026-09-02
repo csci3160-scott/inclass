@@ -1,46 +1,18 @@
 # CSCI 3160 In-Class Code
 
-This repository contains the runnable examples used during CSCI 3160
-lectures. The source examples are selected from the official CS:APP 3e code
-archives and remain close to the versions referenced by Bryant and O'Hallaron.
+This repository contains the code examples we will use during **CSCI 3160: Computer Systems** lectures.
 
-## Source and provenance
+Most examples come from the official *Computer Systems: A Programmer's Perspective (CS:APP), 3rd Edition* code archive and are organized to match the topics we cover in class. You are encouraged to run, modify, debug, and experiment with these programs as we work through the course.
 
-The upstream source inventory is published at:
+## Getting Started
 
-<https://csapp.cs.cmu.edu/3e/code.html>
-
-The C files under `examples/` and the shared support files under `support/`
-are imported from that inventory. The topic directories preserve the CS:APP
-chapter organization while keeping the course's selected subset small enough
-to use in class. Local build files and walkthrough notes are course-owned.
-
-The imported source retains its original copyright notices. See `NOTICE` for
-the repository-level attribution and source mapping. Generated binaries,
-object files, and manuscript-build artifacts do not belong in this repository.
-
-The Docker-based build and classroom commands use the compatibility build
-settings documented by the repository Makefile. The copied CS:APP support
-library renames its helper `gai_error` to `csapp_gai_error` because modern
-glibc declares a different function with that name.
-
-The image builds for the host architecture by default. Set
-`DOCKER_PLATFORM=linux/amd64` when an x86-64 Docker builder or registered
-emulation is available; the course CI runner validates the x86-64 build.
-
-See [WALKTHROUGHS.md](WALKTHROUGHS.md) for the short classroom sequences and
-the examples that are intentionally excluded from automated smoke tests.
-
-## Student workflow
-
-The normal workflow is deliberately small. Build all of the examples once:
+Clone the repository, then build the examples:
 
 ```bash
 make build
 ```
 
-Then choose an example and a tool. The tool commands use the existing build;
-they do not rebuild all examples each time:
+Once the build completes, you can run or inspect individual examples.
 
 ```bash
 make run PROGRAM=show-bytes
@@ -49,9 +21,7 @@ make gdb PROGRAM=badcnt ARGS=100000
 make valgrind PROGRAM=interpose-linktime
 ```
 
-Use `make source FILE=examples/data/show-bytes.c` to open source code in the
-configured pager. `FILE` can be any source file in the repository. Use
-`PAGER=cat` when a non-interactive display is more convenient.
+The exact examples we use will vary by lecture.
 
 For the first in-depth machine-code walkthrough, use the focused target:
 
@@ -68,42 +38,123 @@ relocation. The target uses x86-64 GNU assembler syntax in Intel form with
 commands. Run `make shell` first when the host does not provide the course
 toolchain.
 
-These commands run on the host by default. For a consistent environment with
-the compiler, debugger, and analysis tools already installed, enter the
-container first:
+## Viewing Source Code
+
+You can open a source file using:
+
+```bash
+make source FILE=examples/data/show-bytes.c
+```
+
+`FILE` can be any source file in the repository.
+
+If you prefer to print the file directly to the terminal:
+
+```bash
+PAGER=cat make source FILE=examples/data/show-bytes.c
+```
+
+## Using the Course Container
+
+The examples can run directly on your system, but the provided Docker
+environment is the recommended option because it includes the compiler,
+debugger, and analysis tools used in class.
+
+Start the environment with:
 
 ```bash
 make shell
 ```
 
-The repository is mounted at `/workspace/inclass`; run the same `make`
-commands inside the shell. Exit the container with `exit`. `make image` only
-builds the image, while `make shell` starts an interactive environment and
-`make container-smoke` runs the automated checks in that environment.
+Inside the container, the repository is available at:
 
-### Using tmux
+```text
+/workspace/inclass
+```
 
-tmux is optional, but useful for comparing source, execution, and analysis:
+You can then use the same commands:
+
+```bash
+make build
+make run PROGRAM=show-bytes
+make inspect PROGRAM=branch
+make gdb PROGRAM=badcnt ARGS=100000
+make valgrind PROGRAM=interpose-linktime
+```
+
+When finished, leave the container with:
+
+```bash
+exit
+```
+
+A few additional commands you may see are:
+
+```bash
+make image
+make container-smoke
+```
+
+* `make image` builds the course container.
+* `make container-smoke` runs automated checks against the examples.
+
+You generally will not need these commands unless instructed to use them.
+
+## Optional: Using tmux
+
+`tmux` is useful when you want several terminals visible at once—for example, source code in one pane, program output in another, and GDB in a third.
+
+Start a session with:
 
 ```bash
 tmux new -s csci3160
 make shell
 ```
 
-Inside the container, split panes with `Ctrl-b %` or `Ctrl-b "`, then use one
-pane for `make source`, one for `make run`, and one for `make gdb` or
-`make valgrind`. Detach with `Ctrl-b d` and return with `tmux attach -t csci3160`.
+Useful shortcuts include:
 
-## Parent repository updates
+* `Ctrl-b %` — split the terminal vertically
+* `Ctrl-b "` — split the terminal horizontally
+* `Ctrl-b d` — detach from the session
 
-After a successful CI run on `inclass/main`, the workflow proposes the new
-commit in the parent course repository. It updates the automation branch
-`automation/update-inclass` and creates or refreshes one pull request against
-`csci-3160/csci-3160:main`. The parent repository still controls when the
-submodule update is merged.
+Return to the session later with:
 
-Repository administrators must add an organization Actions secret named
-`COURSE_AUTOMATION_TOKEN` in the producer's Gitea organization. The token needs
-permission to clone, push a branch, and create pull requests in the consumer
-course repositories. The token is used only by the workflow and is never
-stored in the repository.
+```bash
+tmux attach -t csci3160
+```
+
+Using `tmux` is completely optional.
+
+## Repository Organization
+
+The repository is organized by course topic. In general:
+
+* `examples/` contains the programs we will examine in class.
+* `support/` contains supporting code used by some CS:APP examples.
+* `WALKTHROUGHS.md` contains short sequences for selected classroom examples.
+
+You do not need to understand every file in the repository. Focus on the examples referenced during lecture or assigned for further exploration.
+
+## About the Example Code
+
+Many examples in this repository come from the official CS:APP 3e code archive:
+
+https://csapp.cs.cmu.edu/3e/code.html
+
+The imported examples remain close to the versions provided by Bryant and O'Hallaron so that they correspond to the textbook. Some local build files and classroom materials have been added to make the examples easier to use in CSCI 3160.
+
+Original copyright notices are preserved where applicable. Additional attribution and source information can be found in `NOTICE`.
+
+## A Good Way to Use This Repository
+
+Do not treat these examples as programs you simply need to run once.
+
+When we examine an example in class, experiment with it:
+
+1. Read the source code and predict what it will do.
+2. Run the program and compare the result with your prediction.
+3. Use `make inspect` to examine the generated machine code when appropriate.
+4. Step through interesting sections with GDB.
+5. Modify the program and see how its behavior or generated code changes.
+
+The goal is to connect the C programs you already know with what the machine is actually doing underneath them.
