@@ -8,8 +8,9 @@ cd "$repo"
 : "${CFLAGS:=-std=gnu11 -D_GNU_SOURCE -Wall -Wextra -Wpedantic -O0 -g -fno-omit-frame-pointer}"
 
 machine=$(uname -m)
-if [ "$machine" != x86_64 ]; then
-	printf '%s\n' "This demo requires x86-64 Linux (found $machine)." >&2
+os=$(uname -s)
+if [ "$os" != Linux ] || [ "$machine" != x86_64 ]; then
+	printf '%s\n' "This demo requires x86-64 Linux (found $os/$machine)." >&2
 	exit 2
 fi
 
