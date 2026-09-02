@@ -53,6 +53,21 @@ Use `make source FILE=examples/data/show-bytes.c` to open source code in the
 configured pager. `FILE` can be any source file in the repository. Use
 `PAGER=cat` when a non-interactive display is more convenient.
 
+For the first in-depth machine-code walkthrough, use the focused target:
+
+```bash
+make demo-asm
+```
+
+It builds only the artifacts used by that demo under `build/asm-demo/`. The
+branch example accepts a signed integer and prints its result; the `mstore`
+example is intentionally built as assembly and relocatable object code so
+students can inspect the calling-convention setup and unresolved `mult2`
+relocation. The target uses x86-64 GNU assembler syntax in Intel form with
+`-O0 -g`, matching the syntax used in the Bomb Lab and Attack Lab inspection
+commands. Run `make shell` first when the host does not provide the course
+toolchain.
+
 These commands run on the host by default. For a consistent environment with
 the compiler, debugger, and analysis tools already installed, enter the
 container first:

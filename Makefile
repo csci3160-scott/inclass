@@ -1,6 +1,6 @@
 SHELL := /bin/sh
 
-.PHONY: all help build smoke clean image shell source check-program check-tool run inspect gdb demo-intro valgrind container-smoke
+.PHONY: all help build smoke demo-asm clean image shell source check-program check-tool run inspect gdb demo-intro valgrind container-smoke
 
 PROGRAM ?=
 ARGS ?=
@@ -16,6 +16,7 @@ help:
 	@echo '  make run PROGRAM=name [ARGS="..."]      Run an example'
 	@echo '  make inspect PROGRAM=name               Show source and disassembly'
 	@echo '  make gdb PROGRAM=name [ARGS="..."]      Debug an example'
+	@echo '  make demo-asm                            Build the first machine-code demo artifacts'
 	@echo '  make demo-intro                         Run the first CS:APP source-to-machine-code demo'
 	@echo '  make valgrind PROGRAM=name [ARGS="..."] Profile an example'
 	@echo '  make source FILE=examples/path/file.c   Read source in a pager'
@@ -26,6 +27,10 @@ build:
 
 smoke: build
 	./scripts/smoke.sh
+	./scripts/asm-demo-smoke.sh
+
+demo-asm:
+	./scripts/asm-demo.sh
 
 clean:
 	rm -rf build
