@@ -46,27 +46,74 @@ output is intentional for live discussion.
 
 ## First machine-code walkthrough
 
+The first machine-code demo is deliberately a straight-line state trace. Do
+not begin with a loop, a branch, a calling-convention table, or a generated
+`.s` file. Students first need one instruction-sized state transition they can
+observe and explain.
+
 ```bash
 make demo-asm
-sed -n '/^multstore:/,/^\.size/p' build/asm-demo/asm/mstore.s
-objdump -dr -M intel build/asm-demo/obj/mstore.o
-sed -n '/^loop:/,/^\.size/p' build/asm-demo/asm/branch.s
-./build/asm-demo/bin/branch-demo 8
-objdump -d -M intel build/asm-demo/bin/branch-demo
-gdb -q build/asm-demo/bin/branch-demo
+./build/asm-demo/bin/step-demo
+objdump -dr -M intel build/asm-demo/obj/step-demo.o
+objdump -d -M intel build/asm-demo/bin/step-demo \
+  | sed -n '/<main>:/,/^$/p'
+gdb -q build/asm-demo/bin/step-demo
 ```
 
-Use `branch-demo.c` to establish one complete path from a C loop to a visible
-result, then compare compiler-generated Intel assembly with linked
-disassembly and one GDB state observation. Use `010-mstore.c` to show how the
-System V AMD64 integer argument registers feed a call and how the object file
-records the unresolved `mult2` call as a relocation. The assembly and
-disassembly are generated artifacts; do not commit them.
+The program returns 49 through its process exit status. To display it without
+adding a printing call to `main`, run:
 
-The older `120-branch.c` and `160-fact.c` examples remain available for
-optional lecture or textbook comparison. `160-fact.c` is compiled by the
-general build as an object file, not as an executable or generated assembly
-file.
+```bash
+./build/asm-demo/bin/step-demo
+status=$?
+printf 'main returned %d\n' "$status"
+```
+
+The output should be `main returned 49`.
+
+Begin with `examples/asm/step-demo.c`. Ask students to predict the result,
+then show that `main` exists in both the `.o` file and the linked executable.
+In the `objdump` output, identify the instruction address, encoded bytes, and
+disassembler text. The processor fetches the bytes; the mnemonic is a
+human-readable reconstruction.
+
+Next, stop at the function and trace one instruction at a time:
+
+```text
+(gdb) set disassembly-flavor intel
+(gdb) break main
+(gdb) run
+(gdb) display/i $pc
+(gdb) info registers rip rax rbp rsp
+(gdb) x/gx $rsp
+(gdb) si
+```
+
+After each `si`, record the instruction about to execute and the changed
+state. The prologue changes the stack and frame-pointer state. Loads move
+values from memory into registers, `add` changes a register, and stores write
+the result back to memory. When the compiler evaluates `*p`, the pointer's
+address selects the memory being read or written. `$pc` and `$rip` identify
+the address of the instruction GDB will execute next. It normally advances by
+the encoded instruction length, not by one byte; a control-transfer
+instruction changes it to a target or return address.
+
+Use this table on the board:
+
+```text
+before state -- instruction bytes / decoded instruction --> after state
+RIP = ?       -- add <register>, <value>                 --> register changes
+```
+
+The exact prologue and addresses are compiler- and platform-dependent. Keep
+the question stable: what changed, what stayed the same, and where will the
+next instruction be fetched?
+
+The older `010-mstore.c`, `120-branch.c`, `branch-demo.c`, and `160-fact.c`
+examples remain available for later demonstrations. Use them after students
+have practiced straight-line state tracing; they are not prerequisites for
+this first walkthrough. `160-fact.c` is compiled by the general build as an
+object file, not as an executable or generated assembly file.
 
 ## Machine-level code and performance
 

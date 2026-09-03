@@ -20,18 +20,17 @@ obj="$root/obj"
 bin="$root/bin"
 mkdir -p "$asm" "$obj" "$bin"
 
+# Remove old focused-demo artifacts so a rerun cannot present stale output.
+rm -f "$asm/mstore.s" "$asm/branch.s" "$obj/mstore.o" "$bin/branch-demo"
+
 compile() {
 	printf '[asm-demo] %s\n' "$*"
 	"$@"
 }
 
-compile "$CC" $CFLAGS -masm=intel -S \
-	examples/asm/010-mstore.c -o "$asm/mstore.s"
 compile "$CC" $CFLAGS -masm=intel -c \
-	examples/asm/010-mstore.c -o "$obj/mstore.o"
-compile "$CC" $CFLAGS -masm=intel -S \
-	examples/asm/branch-demo.c -o "$asm/branch.s"
+	examples/asm/step-demo.c -o "$obj/step-demo.o"
 compile "$CC" $CFLAGS -masm=intel \
-	examples/asm/branch-demo.c -o "$bin/branch-demo"
+	examples/asm/step-demo.c -o "$bin/step-demo"
 
-printf '%s\n' 'Assembly demo artifacts are ready.'
+printf '%s\n' 'Machine-code demo artifacts are ready.'

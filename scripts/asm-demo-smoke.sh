@@ -6,17 +6,22 @@ cd "$repo"
 
 ./scripts/asm-demo.sh >/dev/null
 
-test "$(build/asm-demo/bin/branch-demo -2)" = 'loop(-2) = -2'
-test "$(build/asm-demo/bin/branch-demo 0)" = 'loop(0) = 0'
-test "$(build/asm-demo/bin/branch-demo 8)" = 'loop(8) = 0'
-test -s build/asm-demo/asm/mstore.s
-test -s build/asm-demo/asm/branch.s
-test -s build/asm-demo/obj/mstore.o
-test -x build/asm-demo/bin/branch-demo
+set +e
+build/asm-demo/bin/step-demo
+status=$?
+set -e
+test "$status" -eq 49
+test -s build/asm-demo/obj/step-demo.o
+test -x build/asm-demo/bin/step-demo
 
-grep -q 'cmp' build/asm-demo/asm/branch.s
-grep -q 'jg' build/asm-demo/asm/branch.s
-objdump -dr -M intel build/asm-demo/obj/mstore.o |
-	grep -q 'R_X86_64_PLT32.*mult2'
+objdump -dr -M intel build/asm-demo/obj/step-demo.o |
+	grep -Eq '\badd[[:space:]]+(eax|rax),'
+objdump -dr -M intel build/asm-demo/obj/step-demo.o |
+	grep -Eq '\bret'
+if objdump -dr -M intel build/asm-demo/obj/step-demo.o |
+	grep -Eq '\bcall'; then
+	echo 'unexpected call in straight-line main' >&2
+	exit 1
+fi
 
-printf '%s\n' 'Assembly demo smoke tests passed.'
+printf '%s\n' 'Machine-code demo smoke tests passed.'

@@ -29,15 +29,14 @@ For the first in-depth machine-code walkthrough, use the focused target:
 make demo-asm
 ```
 
-It builds only the artifacts used by that demo under `build/asm-demo/`. The
-branch example accepts a signed integer and prints its result; the `mstore`
-example is intentionally built as assembly and relocatable object code so
-students can inspect the calling-convention setup and unresolved `mult2`
-relocation. The target uses x86-64 GNU assembler syntax in Intel form with
-`-O0 -g`, matching the syntax used in the Bomb Lab and Attack Lab inspection
-commands. The focused target uses `-O0 -g -fno-omit-frame-pointer` so the
-first stack-frame observations are predictable. Run `make shell` first when
-the host does not provide the course toolchain.
+It builds a tiny straight-line `main` with different data widths and pointer
+dereferencing as both a relocatable object and an executable under
+`build/asm-demo/`. The focused target uses x86-64 GNU assembler syntax in
+Intel form with `-O0 -g -fno-omit-frame-pointer`, matching the syntax used in
+the Bomb Lab and Attack Lab inspection commands. The branch, `multstore`, and
+factorial examples remain available through the general build for later
+lectures. Run `make shell` first when the host does not provide the course
+toolchain.
 
 ## Viewing Source Code
 
